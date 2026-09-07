@@ -207,6 +207,16 @@ code, pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
   display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px;
 }
 
+/* full-width feature figure (roughly 2x a .figure-duo cell) */
+.figure-hero { margin-bottom: 20px; }
+.figure-hero figcaption { max-width: 900px; margin-left: auto; margin-right: auto; }
+
+/* forced 2-column grid, regardless of how many items follow */
+.figure-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 720px) {
+  .figure-grid-2 { grid-template-columns: 1fr; }
+}
+
 /* ---------------- cards ---------------- */
 .card-grid {
   display: grid; grid-template-columns: repeat(auto-fit, minmax(258px, 1fr)); gap: 18px;

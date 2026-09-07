@@ -81,9 +81,9 @@
     <div class="stat-strip">
       <div class="stat"><div class="stat-num">98.6<span>%</span></div><div class="stat-lab">LIBERO Avg.</div></div>
       <div class="stat"><div class="stat-num">85.3<span>%</span></div><div class="stat-lab">LIBERO-Plus Avg.</div></div>
-      <div class="stat"><div class="stat-num">58.2<span>%</span></div><div class="stat-lab">RoboTwin 2.0 Hard</div></div>
+      <div class="stat"><div class="stat-num">58.2<span>%</span></div><div class="stat-lab">RoboTwin 2.0 Hard (11 Tasks)</div></div>
       <div class="stat"><div class="stat-num">77.7<span>%</span></div><div class="stat-lab">Real-World TSR</div></div>
-      <div class="stat"><div class="stat-num">25&ndash;50<span>%</span></div><div class="stat-lab">of $\pi_{0.5}$ Epochs</div></div>
+      <div class="stat"><div class="stat-num">86.3<span>%</span></div><div class="stat-lab">Real-World CSR</div></div>
     </div>
   </div>
 </header>
@@ -240,20 +240,29 @@
       </li>
     </ol>
 
+    <figure class="figure figure-hero">
+      <img src="static/images/3-bankv3.png" alt="Transition-aligned bidirectional memory construction" loading="lazy">
+      <figcaption>
+        <strong>Transition-aligned bidirectional memory.</strong> Stateful Vision-Mamba and Action-Mamba modules encode
+        episode-level temporal correspondence, while cross-stream transition grounding injects action-conditioned
+        dynamics into visual memories and visual-transition semantics into action memories.
+      </figcaption>
+    </figure>
+
     <div class="figure-duo">
-      <figure class="figure">
-        <img src="static/images/3-bankv3.png" alt="Transition-aligned bidirectional memory construction" loading="lazy">
-        <figcaption>
-          <strong>Transition-aligned bidirectional memory.</strong> Stateful Vision-Mamba and Action-Mamba modules encode
-          episode-level temporal correspondence, while cross-stream transition grounding injects action-conditioned
-          dynamics into visual memories and visual-transition semantics into action memories.
-        </figcaption>
-      </figure>
       <figure class="figure">
         <img src="static/images/3-gatev3.png" alt="Transition-critical trigger gate" loading="lazy">
         <figcaption>
           <strong>Transition-critical Trigger Gate.</strong> Pixel supervision activates when the latent-change score
           exceeds a threshold or a translation / rotation / gripper-change indicator fires.
+        </figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="static/images/3-proposerv3.png" alt="Action-manifold prototype refinement" loading="lazy">
+        <figcaption>
+          <strong>Action-manifold prototype refinement.</strong> The retrieved prototype is fused with recent action
+          history into an action-manifold prior that translates the Gaussian source toward a historically supported
+          motion region, which the Action Expert then refines through flow matching.
         </figcaption>
       </figure>
     </div>
@@ -305,11 +314,6 @@
       Seven task suites on two bimanual platforms &mdash; <strong>GALAXEA R1 Lite</strong> (23-DoF mobile bimanual) and
       <strong>AgileX Cobot Magic</strong> (Mobile ALOHA based) &mdash; with 25 independent trials per task.
     </p>
-
-    <figure class="figure">
-      <img src="static/images/4-robotv2.png" alt="Real-world robot platforms" loading="lazy">
-      <figcaption><strong>Robot platforms.</strong> GALAXEA R1 Lite and AgileX Cobot Magic.</figcaption>
-    </figure>
 
     <!--
       REAL-WORLD VIDEO SLOTS (7 suites)
@@ -623,7 +627,7 @@
 <section class="section section-alt" id="analysis">
   <div class="container">
     <h2 class="section-title">Qualitative Analysis</h2>
-    <div class="figure-duo">
+    <div class="figure-duo figure-grid-2">
       <figure class="figure">
         <img src="static/images/5-vis-temp.png" alt="Temporal memory structure and cross-modal retrieval" loading="lazy">
         <figcaption>
