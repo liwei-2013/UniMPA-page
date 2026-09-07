@@ -300,20 +300,16 @@
     </p>
 
     <!--
-      REAL-WORLD VIDEO SLOTS (7 suites)
-      For each card, replace the .video-placeholder div with:
-      <video src="static/videos/<name>.mp4" poster="static/images/5-vis-real.png"
-             controls muted loop playsinline preload="metadata"></video>
+      REAL-WORLD VIDEOS (7 suites, silent H.264 clips in static/videos/)
+      The "#t=0.1" fragment makes browsers render the first frame as a poster.
+      static/js/main.js autoplays a clip when it scrolls into view and pauses it when it leaves.
     -->
     <div class="video-grid" id="video-grid">
       <!-- suite A -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-a-rearrangement.mp4</code>
-          </div>
+          <video src="static/videos/suite-a-rearrangement.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite A</span>
@@ -324,11 +320,8 @@
       <!-- suite B -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-b-articulated.mp4</code>
-          </div>
+          <video src="static/videos/suite-b-articulated.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite B</span>
@@ -339,11 +332,8 @@
       <!-- suite C -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-c-assembly.mp4</code>
-          </div>
+          <video src="static/videos/suite-c-assembly.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite C</span>
@@ -354,11 +344,8 @@
       <!-- suite D -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-d-deformable.mp4</code>
-          </div>
+          <video src="static/videos/suite-d-deformable.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite D</span>
@@ -369,11 +356,8 @@
       <!-- suite E -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-e-bimanual.mp4</code>
-          </div>
+          <video src="static/videos/suite-e-bimanual.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite E</span>
@@ -384,11 +368,8 @@
       <!-- suite F -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-f-dynamic.mp4</code>
-          </div>
+          <video src="static/videos/suite-f-dynamic.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite F</span>
@@ -399,11 +380,8 @@
       <!-- suite G -->
       <div class="video-card">
         <div class="video-frame">
-          <div class="video-placeholder">
-            <div class="ph-play">&#9654;</div>
-            <div class="ph-title">Video coming soon</div>
-            <code>static/videos/suite-g-longhorizon.mp4</code>
-          </div>
+          <video src="static/videos/suite-g-longhorizon.mp4#t=0.1"
+                 controls muted loop playsinline preload="metadata"></video>
         </div>
         <div class="video-meta">
           <span class="tag">Suite G</span>

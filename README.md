@@ -9,14 +9,10 @@ python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
-## Adding videos later
+## Videos
 
-All video slots are placeholders. Drop the `.mp4` files into `static/videos/` using these names,
-then replace the `<div class="video-placeholder">…</div>` block inside the corresponding
-`<div class="video-frame">` in `index.html` with a `<video>` tag. Each slot has an HTML comment
-above it showing the exact replacement snippet.
-
-Expected filenames:
+The seven real-world clips live in `static/videos/` and are wired into the
+`Real-World Robot Experiments` section:
 
 - `suite-a-rearrangement.mp4` — semantic rearrangement & sorting
 - `suite-b-articulated.mp4` — articulated & container interaction
@@ -26,18 +22,22 @@ Expected filenames:
 - `suite-f-dynamic.mp4` — dynamic & reactive manipulation
 - `suite-g-longhorizon.mp4` — long-horizon composition & recovery
 
-Example replacement:
+They are silent H.264 clips played with `controls muted loop playsinline preload="metadata"`.
+The `#t=0.1` fragment in each `src` makes the browser render the first frame instead of a black
+box, and `static/js/main.js` autoplays a clip when it enters the viewport and pauses it when it
+leaves, so a grid of seven clips stays cheap.
 
-```html
-<div class="video-frame">
-  <video src="static/videos/suite-e-bimanual.mp4"
-         poster="static/images/5-vis-real.png"
-         controls muted loop playsinline preload="metadata"></video>
-</div>
+To swap a clip, overwrite the file in `static/videos/` keeping the same name — no HTML change needed.
+
+The source files were not remuxed with `-movflags +faststart` (no ffmpeg available locally), so the
+`moov` atom sits at the end of each file. Playback works because GitHub Pages serves range requests,
+but startup is slightly slower. If you have ffmpeg, this makes it snappier:
+
+```bash
+for f in static/videos/*.mp4; do
+  ffmpeg -i "$f" -c copy -movflags +faststart "${f%.mp4}.fs.mp4" && mv "${f%.mp4}.fs.mp4" "$f"
+done
 ```
-
-`static/js/main.js` pauses `<video>` elements once they scroll out of view, so a grid of
-looping clips stays cheap.
 
 ## Still to fill in
 
@@ -52,5 +52,5 @@ looping clips stays cheap.
 - `static/css/style.css` — styles
 - `static/js/main.js` — result tabs, BibTeX copy, scroll-spy nav, video pausing
 - `static/images/` — figures copied from the manuscript
-- `static/videos/` — video slots (empty for now)
+- `static/videos/` — the seven real-world clips
 - `.nojekyll` — tells GitHub Pages to serve files as-is
