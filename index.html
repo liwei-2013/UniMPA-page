@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniMPA: A Unified Memory-Prediction-Action Model via Action-Grounded Transition Modeling</title>
+<meta name="description" content="UniMPA unifies future prediction, bidirectional vision-action memory, and action generation through a shared action-grounded transition interface for robotic manipulation.">
+<meta property="og:title" content="UniMPA: A Unified Memory-Prediction-Action Model">
+<meta property="og:description" content="Closing the transition realizability gap with an anticipate-ground-refine process.">
+<meta property="og:image" content="static/images/1-introv4.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="static/css/style.css">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+  };
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="nav-inner">
+    <a class="nav-brand" href="#top">UniMPA</a>
+    <div class="nav-links">
+      <a href="#highlights">Highlights</a>
+      <a href="#method">Method</a>
+      <a href="#recipe">Training</a>
+      <a href="#realworld">Real-World</a>
+      <a href="#results">Results</a>
+      <a href="#analysis">Analysis</a>
+      <a href="#bibtex">Citation</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============================ HERO ============================ -->
+<header class="hero" id="top">
+  <div class="hero-glow"></div>
+  <div class="container">
+    <div class="eyebrow">Embodied AI Research</div>
+    <h1 class="hero-title">UniMPA: A Unified Memory-Prediction-Action Model<br><span class="accent">via Action-Grounded Transition Modeling</span></h1>
+
+    <div class="authors">
+      <a href="#">Wei Li</a><sup>1</sup>,
+      <a href="#">Rui Shao</a><sup>1,&dagger;</sup>,
+      <a href="#">Jie He</a><sup>1</sup>,
+      <a href="#">Lingsen Zhang</a><sup>1</sup>,
+      <a href="#">Ziwei Liu</a><sup>2</sup>,
+      <a href="#">Liqiang Nie</a><sup>1</sup>
+    </div>
+    <div class="affiliations">
+      <span><sup>1</sup>Harbin Institute of Technology (Shenzhen)</span>
+      <span><sup>2</sup>S-Lab, Nanyang Technological University</span>
+    </div>
+    <div class="corresponding"><sup>&dagger;</sup>Corresponding author</div>
+
+    <p class="hero-lead">
+      Robotic manipulation is not simply mapping an <em>observation</em> to an action &mdash; it requires inferring the
+      task-relevant <em>transition</em> and realizing that change with an executable action pattern. UniMPA closes this
+      <strong>transition realizability gap</strong> by unifying future prediction, bidirectional vision&ndash;action memory,
+      and action generation on a shared <strong>action-grounded transition</strong> interface, forming an
+      <em>anticipate&mdash;ground&mdash;refine</em> process.
+    </p>
+
+    <div class="btn-row">
+      <a class="btn btn-primary" href="#" data-todo="arxiv-link">
+        <span class="btn-ico">&#128220;</span> Read Paper
+      </a>
+      <a class="btn" href="#" data-todo="code-link">
+        <span class="btn-ico">&#60;/&#62;</span> View on GitHub
+      </a>
+      <a class="btn" href="#teaser-video">
+        <span class="btn-ico">&#9654;</span> Watch Demo
+      </a>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat"><div class="stat-num">98.6<span>%</span></div><div class="stat-lab">LIBERO Avg.</div></div>
+      <div class="stat"><div class="stat-num">85.3<span>%</span></div><div class="stat-lab">LIBERO-Plus Avg.</div></div>
+      <div class="stat"><div class="stat-num">58.2<span>%</span></div><div class="stat-lab">RoboTwin 2.0 Hard</div></div>
+      <div class="stat"><div class="stat-num">77.7<span>%</span></div><div class="stat-lab">Real-World TSR</div></div>
+      <div class="stat"><div class="stat-num">25&ndash;50<span>%</span></div><div class="stat-lab">of $\pi_{0.5}$ Epochs</div></div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================ TEASER VIDEO ============================ -->
+<section class="section section-tight" id="teaser-video">
+  <div class="container">
+    <!--
+      TEASER VIDEO SLOT
+      Replace the .video-placeholder div below with:
+      <video src="static/videos/teaser.mp4" poster="static/images/1-introv4.png"
+             controls autoplay muted loop playsinline></video>
+    -->
+    <div class="video-frame video-frame-wide">
+      <div class="video-placeholder">
+        <div class="ph-play">&#9654;</div>
+        <div class="ph-title">Teaser video</div>
+        <code>static/videos/teaser.mp4</code>
+      </div>
+    </div>
+    <p class="video-note">Best viewed with sound on</p>
+  </div>
+</section>
+
+<!-- ============================ ABSTRACT ============================ -->
+<section class="section" id="abstract">
+  <div class="container narrow">
+    <h2 class="section-title">Abstract</h2>
+    <div class="abstract-body">
+      <p>
+        Recent advances in Vision-Language-Action (VLA) models have improved robotic manipulation, yet
+        observation-to-action learning remains limited by a fundamental <em>transition realizability gap</em>,
+        manifested in three tightly coupled problems:
+        <strong>(i) Transition ambiguity</strong> &mdash; visually similar observations may correspond to different
+        manipulation phases and imply different subsequent transitions;
+        <strong>(ii) Prediction&ndash;execution mismatch</strong> &mdash; a visually plausible predicted future does not
+        necessarily correspond to a physically realizable transition;
+        <strong>(iii) Experience&ndash;realization mismatch</strong> &mdash; a historically executable action pattern may
+        not realize the intended transition in the current scene and therefore requires context-aware adaptation.
+      </p>
+      <p>
+        We propose <strong>UniMPA</strong>, a Unified Memory-Prediction-Action model that addresses these problems
+        through a shared <em>action-grounded transition</em> interface.
+        <strong>Persistent-Selective Future Prediction</strong> resolves transition ambiguity by modeling intended future
+        state evolution: a persistent latent stream tracks task-level progress while a transition-critical pixel stream
+        selectively resolves fine-grained interaction changes.
+        A temporal <strong>Visual-Action Memory Bank</strong> then grounds the predicted transition in historically
+        realized visual&ndash;action experience, and an <strong>Action-Visual Memory Bank</strong> retrieves visually
+        grounded action prototypes, with <strong>Prototype-Biased Flow</strong> shifting the flow source toward a
+        historically supported action manifold for context-aware refinement.
+      </p>
+      <p>
+        Extensive experiments show robust and generalizable manipulation with only <strong>25&ndash;50%</strong> of the
+        training epochs of the $\pi_{0.5}$ baseline, outperforming it by <strong>1.7</strong>, <strong>11.7</strong>,
+        <strong>18.5</strong>, and <strong>12.6</strong> percentage points on LIBERO, LIBERO-Plus, RoboTwin 2.0 Hard,
+        and real-world tasks, respectively.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ MOTIVATION ============================ -->
+<section class="section section-alt" id="motivation">
+  <div class="container">
+    <h2 class="section-title">Motivation &amp; Paradigm Comparison</h2>
+    <p class="section-sub">
+      Visually similar observations may imply different transitions <strong>(a)</strong>; a visually plausible future may
+      not be physically realizable and must be grounded in executable experience <strong>(b)</strong>; and an action
+      prototype must be adapted to the current scene rather than replayed as-is <strong>(c)</strong>. Existing prediction
+      paradigms decouple predicted futures from historical executability <strong>(d)</strong>, while existing memory
+      paradigms rely on observation-centric history without transition&ndash;action correspondence <strong>(e)</strong>.
+      UniMPA <strong>(f)</strong> unifies all three through an action-grounded transition interface.
+    </p>
+    <figure class="figure">
+      <img src="static/images/1-introv4.png" alt="Motivation and paradigm comparison" loading="lazy">
+    </figure>
+  </div>
+</section>
+
+<!-- ============================ HIGHLIGHTS ============================ -->
+<section class="section" id="highlights">
+  <div class="container">
+    <h2 class="section-title">Research Highlights</h2>
+    <p class="section-sub">Three coupled designs, one shared transition interface.</p>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-ico">&#128302;</div>
+        <h3>Persistent-Selective Future Prediction</h3>
+        <p>
+          Persistent latent supervision encodes semantic progress and long-term state evolution into pre-head transition
+          tokens, while a <strong>Trigger Gate</strong> activates pixel decoding only at transition-critical moments &mdash;
+          adding interaction-time detail without dense-reconstruction bias.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-ico">&#129504;</div>
+        <h3>Visual-Action Memory Bank</h3>
+        <p>
+          The future-supervised transition representation queries temporally aligned visual&ndash;action trajectories.
+          Retrieval is conditioned on the <em>expected state change</em> rather than frame-level appearance, using
+          historically realized action evolution as executable evidence.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-ico">&#129355;</div>
+        <h3>Action-Visual Memory Bank</h3>
+        <p>
+          Action history together with its aligned visual evolution retrieves a visually grounded action prototype,
+          preserving the transition semantics needed for phase-consistent experience reuse.
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-ico">&#127754;</div>
+        <h3>Prototype-Biased Flow</h3>
+        <p>
+          Instead of replaying the retrieved prototype, UniMPA shifts the flow source toward a historically supported
+          action manifold and lets the policy refine it for the current observation, instruction, and robot state.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ METHOD ============================ -->
+<section class="section section-alt" id="method">
+  <div class="container">
+    <h2 class="section-title">Framework</h2>
+    <p class="section-sub">
+      UniMPA couples future-supervised transition modeling, bidirectional visual&ndash;action memory, and action
+      generation through an action-grounded transition.
+    </p>
+    <figure class="figure">
+      <img src="static/images/3-frameworkv4.png" alt="Overall framework of UniMPA" loading="lazy">
+    </figure>
+    <ol class="numbered-list">
+      <li>
+        <strong>World Expert.</strong> Zero-initialized transition queries are transported into latent transition tokens
+        conditioned on the current context; training-only latent and trigger-gated pixel heads supervise these tokens
+        with future outcomes.
+      </li>
+      <li>
+        <strong>Bidirectional retrieval.</strong> The transition representation queries the Visual-Action Memory Bank for
+        action-grounded visual experience, while historical actions query the Action-Visual Memory Bank to construct
+        executable action prototypes.
+      </li>
+      <li>
+        <strong>Action generation.</strong> The retrieved prior biases the initial flow distribution and is subsequently
+        refined by the Action Expert.
+      </li>
+      <li>
+        <strong>Inference.</strong> Only the explicit latent/pixel decoding heads are removed; the World Expert and its
+        transition tokens remain active and, together with the retrieved action-manifold prior, condition action
+        generation.
+      </li>
+    </ol>
+
+    <div class="figure-duo">
+      <figure class="figure">
+        <img src="static/images/3-bankv3.png" alt="Transition-aligned bidirectional memory construction" loading="lazy">
+        <figcaption>
+          <strong>Transition-aligned bidirectional memory.</strong> Stateful Vision-Mamba and Action-Mamba modules encode
+          episode-level temporal correspondence, while cross-stream transition grounding injects action-conditioned
+          dynamics into visual memories and visual-transition semantics into action memories.
+        </figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="static/images/3-gatev3.png" alt="Transition-critical trigger gate" loading="lazy">
+        <figcaption>
+          <strong>Transition-critical Trigger Gate.</strong> Pixel supervision activates when the latent-change score
+          exceeds a threshold or a translation / rotation / gripper-change indicator fires.
+        </figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ TRAINING RECIPE ============================ -->
+<section class="section" id="recipe">
+  <div class="container">
+    <h2 class="section-title">Two-Stage Training Recipe</h2>
+    <div class="stage-flow">
+      <div class="stage">
+        <div class="stage-num">1</div>
+        <h3>Memory Pretraining</h3>
+        <p>
+          The bidirectional memory bank is pretrained with future-oriented reconstruction, retrieval-simulation, and
+          cross-modal alignment objectives so that keys index transitions and values preserve temporally evolved
+          vision&ndash;action dynamics.
+        </p>
+      </div>
+      <div class="stage-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-num">2</div>
+        <h3>Policy Training</h3>
+        <p>
+          Memory banks are frozen. Persistent latent prediction, trigger-gated pixel prediction, and flow-matching action
+          generation are jointly optimized on top of the $\pi_{0.5}$ backbone (PaliGemma-2B VLM + 311M Gemma action
+          expert + an 18-layer World Expert).
+        </p>
+      </div>
+      <div class="stage-arrow">&rarr;</div>
+      <div class="stage">
+        <div class="stage-num">3</div>
+        <h3>Inference</h3>
+        <p>
+          Latent and pixel decoding heads are dropped. Transition tokens and the retrieved action-manifold prior remain,
+          and 10 Euler flow-matching steps produce the action chunk.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ REAL-WORLD VIDEOS ============================ -->
+<section class="section section-alt" id="realworld">
+  <div class="container">
+    <h2 class="section-title">Real-World Robot Experiments</h2>
+    <p class="section-sub">
+      Seven task suites on two bimanual platforms &mdash; <strong>GALAXEA R1 Lite</strong> (23-DoF mobile bimanual) and
+      <strong>AgileX Cobot Magic</strong> (Mobile ALOHA based) &mdash; with 25 independent trials per task.
+    </p>
+
+    <figure class="figure">
+      <img src="static/images/4-robotv2.png" alt="Real-world robot platforms" loading="lazy">
+      <figcaption><strong>Robot platforms.</strong> GALAXEA R1 Lite and AgileX Cobot Magic.</figcaption>
+    </figure>
+
+    <!--
+      REAL-WORLD VIDEO SLOTS (7 suites)
+      For each card, replace the .video-placeholder div with:
+      <video src="static/videos/<name>.mp4" poster="static/images/5-vis-real.png"
+             controls muted loop playsinline preload="metadata"></video>
+    -->
+    <div class="video-grid" id="video-grid">
+      <!-- suite A -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-a-rearrangement.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite A</span>
+          <h4>Semantic Rearrangement &amp; Sorting</h4>
+          <p>Instruction-conditioned sorting and placement driven by semantic category rather than appearance.</p>
+        </div>
+      </div>
+      <!-- suite B -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-b-articulated.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite B</span>
+          <h4>Articulated &amp; Container Interaction</h4>
+          <p>Microwave, drawer, and lid manipulation requiring contact-consistent transitions.</p>
+        </div>
+      </div>
+      <!-- suite C -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-c-assembly.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite C</span>
+          <h4>Precision Assembly &amp; Geometric Manipulation</h4>
+          <p>Block stacking and insertion where small pose errors break executability.</p>
+        </div>
+      </div>
+      <!-- suite D -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-d-deformable.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite D</span>
+          <h4>Deformable &amp; Tool-Mediated Manipulation</h4>
+          <p>Towel folding and tool use, where visually similar layouts hide different task phases.</p>
+        </div>
+      </div>
+      <!-- suite E -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-e-bimanual.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite E</span>
+          <h4>Bimanual Coordination</h4>
+          <p>Hand-to-hand transfer and dual-arm cooperation. <strong>82.7% / 86.7%</strong> TSR/CSR.</p>
+        </div>
+      </div>
+      <!-- suite F -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-f-dynamic.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite F</span>
+          <h4>Dynamic &amp; Reactive Manipulation</h4>
+          <p>Conveyor interception and moving-target grasping. <strong>70.7% / 79.2%</strong> TSR/CSR.</p>
+        </div>
+      </div>
+      <!-- suite G -->
+      <div class="video-card">
+        <div class="video-frame">
+          <div class="video-placeholder">
+            <div class="ph-play">&#9654;</div>
+            <div class="ph-title">Video coming soon</div>
+            <code>static/videos/suite-g-longhorizon.mp4</code>
+          </div>
+        </div>
+        <div class="video-meta">
+          <span class="tag">Suite G</span>
+          <h4>Long-Horizon Composition &amp; Recovery</h4>
+          <p>Multi-stage tasks with failure recovery. <strong>72.0% / 83.3%</strong>, +20.0/+14.9 over $\pi_{0.5}$.</p>
+        </div>
+      </div>
+    </div>
+
+    <figure class="figure">
+      <img src="static/images/5-vis-real.png" alt="Representative real-world manipulation trajectories" loading="lazy">
+      <figcaption>
+        <strong>Representative real-world trajectories</strong> across the seven suites. Highlighted regions indicate
+        contact-sensitive or transition-critical interaction moments.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============================ RESULTS ============================ -->
+<section class="section" id="results">
+  <div class="container">
+    <h2 class="section-title">Performance Highlights</h2>
+    <p class="section-sub">
+      Four simulation benchmarks and seven real-world task suites.
+    </p>
+    <figure class="figure">
+      <img src="static/images/4-setting.png" alt="Evaluation settings" loading="lazy">
+      <figcaption>
+        <strong>Evaluation settings.</strong> Left: simulation benchmarks (LIBERO, LIBERO-Plus, RoboTwin 2.0, VLABench).
+        Right: the seven real-world manipulation suites.
+      </figcaption>
+    </figure>
+
+    <div class="tabs" role="tablist">
+      <button class="tab is-active" data-tab="t-libero" role="tab">LIBERO</button>
+      <button class="tab" data-tab="t-plus" role="tab">LIBERO-Plus</button>
+      <button class="tab" data-tab="t-robotwin" role="tab">RoboTwin 2.0</button>
+      <button class="tab" data-tab="t-vlabench" role="tab">VLABench</button>
+      <button class="tab" data-tab="t-real" role="tab">Real-World</button>
+    </div>
+
+    <!-- LIBERO -->
+    <div class="tab-panel is-active" id="t-libero">
+      <p class="table-note">
+        Success rate over 2,000 rollouts on four suites. UniMPA reaches state of the art using only <strong>25%</strong>
+        of the training epochs required by $\pi_0$ / $\pi_{0.5}$.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Spatial</th><th>Object</th><th>Goal</th><th>Long</th><th>Avg.</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>OpenVLA <em>[CoRL'24]</em></td><td>84.7</td><td>88.4</td><td>79.2</td><td>53.7</td><td>76.5</td></tr>
+            <tr><td>OpenVLA-OFT <em>[RSS'25]</em></td><td>97.6</td><td>98.4</td><td>97.9</td><td>94.5</td><td>97.1</td></tr>
+            <tr><td>$\pi_0$ <em>[RSS'25]</em></td><td>96.8</td><td>98.8</td><td>95.8</td><td>85.2</td><td>94.2</td></tr>
+            <tr><td>$\pi_{0.5}$ <em>[CoRL'25]</em></td><td>98.8</td><td>98.2</td><td>98.0</td><td>92.4</td><td>96.9</td></tr>
+            <tr><td>DreamVLA <em>[NeurIPS'25]</em></td><td>97.5</td><td>94.0</td><td>89.5</td><td>89.5</td><td>92.6</td></tr>
+            <tr><td>VLA-JEPA <em>[arXiv'26]</em></td><td>96.2</td><td>99.6</td><td>97.2</td><td>95.8</td><td>97.2</td></tr>
+            <tr><td>Fast-WAM <em>[arXiv'26]</em></td><td>98.2</td><td><b>100.0</b></td><td>97.0</td><td>95.2</td><td>97.6</td></tr>
+            <tr><td>X-VLA <em>[ICLR'26]</em></td><td>98.2</td><td>98.6</td><td>97.8</td><td><b>97.6</b></td><td>98.1</td></tr>
+            <tr class="ours"><td><b>UniMPA</b></td><td><b>99.6</b></td><td>99.8</td><td><b>98.8</b></td><td>96.0</td><td><b>98.6</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LIBERO-Plus -->
+    <div class="tab-panel" id="t-plus">
+      <p class="table-note">
+        Zero-shot robustness across seven perturbation dimensions (10,030 rollouts). UniMPA ranks <strong>first</strong>
+        in both average success rate and smallest degradation $\Delta$.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th><th>Origin</th><th>Camera</th><th>Robot</th><th>Lang.</th><th>Light</th>
+              <th>Backgr.</th><th>Noise</th><th>Layout</th><th>Avg. &uarr;</th><th>$\Delta$ &darr;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>OpenVLA-OFT</td><td>97.1</td><td>56.4</td><td>31.9</td><td>79.5</td><td>88.7</td><td>93.3</td><td>75.8</td><td>74.2</td><td>69.6</td><td>27.5</td></tr>
+            <tr><td>$\pi_0$</td><td>94.2</td><td>13.8</td><td>6.0</td><td>58.8</td><td>85.0</td><td>81.4</td><td>79.0</td><td>68.9</td><td>53.6</td><td>40.6</td></tr>
+            <tr><td>$\pi_{0.5}$</td><td>96.9</td><td>59.7</td><td>65.5</td><td>75.3</td><td>87.0</td><td>82.4</td><td>72.1</td><td>80.3</td><td>73.6</td><td>23.3</td></tr>
+            <tr><td>X-VLA</td><td>98.1</td><td>23.4</td><td><b>89.7</b></td><td>75.7</td><td>88.2</td><td><b>96.0</b></td><td>62.7</td><td>71.8</td><td>71.4</td><td>26.7</td></tr>
+            <tr><td>DreamVLA</td><td>92.6</td><td>65.0</td><td>40.8</td><td>63.5</td><td>85.7</td><td>82.6</td><td>84.9</td><td>74.0</td><td>69.9</td><td>22.7</td></tr>
+            <tr><td>VLA-JEPA</td><td>97.2</td><td>63.3</td><td>67.1</td><td>85.4</td><td>95.6</td><td>93.6</td><td>66.3</td><td>85.1</td><td>79.5</td><td>17.7</td></tr>
+            <tr><td>FutureVLA</td><td>98.3</td><td>59.7</td><td>66.0</td><td>88.2</td><td><b>97.4</b></td><td><b>97.8</b></td><td>77.3</td><td>82.6</td><td>79.7</td><td>18.6</td></tr>
+            <tr><td>Cosmos Policy</td><td>98.5</td><td>69.6</td><td>51.0</td><td><b>89.6</b></td><td>97.7</td><td>85.7</td><td>87.3</td><td>83.7</td><td>79.7</td><td>18.8</td></tr>
+            <tr><td>MemoryVLA++</td><td>98.4</td><td>36.4</td><td>68.9</td><td>88.7</td><td>93.8</td><td>90.6</td><td>63.5</td><td>83.8</td><td>73.1</td><td>25.3</td></tr>
+            <tr><td>Libra-VLA</td><td>97.2</td><td>68.9</td><td>48.8</td><td><b>92.7</b></td><td><b>97.9</b></td><td>93.4</td><td>86.3</td><td>77.5</td><td>79.5</td><td>17.7</td></tr>
+            <tr class="ours"><td><b>UniMPA</b></td><td>98.6</td><td><b>75.7</b></td><td>73.0</td><td>84.6</td><td>96.8</td><td>94.5</td><td><b>90.9</b></td><td><b>87.3</b></td><td><b>85.3</b></td><td><b>13.3</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">
+        Per-suite averages under perturbation: Spatial <b>91.0</b>, Object <b>89.7</b>, Goal <b>84.3</b>, Long <b>76.5</b>.
+      </p>
+    </div>
+
+    <!-- RoboTwin -->
+    <div class="tab-panel" id="t-robotwin">
+      <p class="table-note">
+        All policies trained on the <strong>Clean</strong> setting and evaluated zero-shot on the
+        <strong>Randomized (Hard)</strong> setting, 100 rollouts per task. UniMPA averages <b>58.2%</b>, ranking first on
+        8/11 tasks.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th><th>Adjust B</th><th>Dump BB</th><th>Grab R</th><th>Move PA</th><th>Open L</th>
+              <th>Place BF</th><th>Place EC</th><th>Place OSc</th><th>Place PS</th><th>Shake BH</th><th>Turn S</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>DP3 <em>[RSS'24]</em></td><td>3%</td><td>53%</td><td>2%</td><td>3%</td><td>7%</td><td>18%</td><td>1%</td><td>0%</td><td>2%</td><td>25%</td><td>8%</td></tr>
+            <tr><td>$\pi_0$ <em>[RSS'25]</em></td><td>56%</td><td>24%</td><td>80%</td><td>22%</td><td>46%</td><td>4%</td><td>11%</td><td>0%</td><td>7%</td><td>51%</td><td>23%</td></tr>
+            <tr><td>$\pi_{0.5}$ <em>[CoRL'25]</em></td><td>54%</td><td>30%</td><td>63%</td><td>14%</td><td>37%</td><td><b>45%</b></td><td>53%</td><td>20%</td><td>7%</td><td>94%</td><td>20%</td></tr>
+            <tr><td>RDT <em>[ICLR'25]</em></td><td>75%</td><td>32%</td><td>43%</td><td>11%</td><td>32%</td><td>27%</td><td>7%</td><td>0%</td><td>6%</td><td>51%</td><td>15%</td></tr>
+            <tr><td>KAM-WM <em>[arXiv'26]</em></td><td>&ndash;</td><td>47%</td><td>80%</td><td>21%</td><td><b>69%</b></td><td>40%</td><td>6%</td><td>1%</td><td>15%</td><td>55%</td><td>10%</td></tr>
+            <tr><td>BagelVLA <em>[RSS'26]</em></td><td>14%</td><td>51%</td><td>41%</td><td>30%</td><td>37%</td><td>11%</td><td>34%</td><td>0%</td><td>2%</td><td>73%</td><td>30%</td></tr>
+            <tr><td>HALO <em>[ICML'26]</em></td><td>9%</td><td>28%</td><td>57%</td><td><b>53%</b></td><td>37%</td><td>37%</td><td>28%</td><td>5%</td><td>10%</td><td>66%</td><td>27%</td></tr>
+            <tr class="ours"><td><b>UniMPA</b></td><td><b>80%</b></td><td><b>62%</b></td><td><b>84%</b></td><td>46%</td><td>67%</td><td>40%</td><td><b>57%</b></td><td><b>38%</b></td><td><b>37%</b></td><td><b>95%</b></td><td><b>34%</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- VLABench -->
+    <div class="tab-panel" id="t-vlabench">
+      <p class="table-note">
+        Language-conditioned manipulation with implicit instructions. UniMPA reaches the highest average
+        <b>44.0%</b>, +4.3 points over $\pi_{0.5}$.
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Method</th><th>Painting</th><th>Book</th><th>Drink</th><th>Tube</th><th>Condiment</th><th>Flower</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Octo <em>[RSS'24]</em></td><td>6.2</td><td>0.0</td><td>0.0</td><td>1.5</td><td>3.1</td><td>1.5</td></tr>
+            <tr><td>OpenVLA <em>[CoRL'24]</em></td><td><b>40.2</b></td><td>7.7</td><td>8.5</td><td>7.7</td><td>12.4</td><td>13.9</td></tr>
+            <tr><td>RDT <em>[ICLR'25]</em></td><td>35.2</td><td>3.1</td><td>7.7</td><td>12.4</td><td>21.5</td><td>21.5</td></tr>
+            <tr><td>$\pi_{0.5}$ <em>[CoRL'25]</em></td><td>30.0</td><td>54.0</td><td>42.0</td><td>36.0</td><td><b>56.0</b></td><td>20.0</td></tr>
+            <tr><td>VLA-Cache <em>[NeurIPS'25]</em></td><td>32.0</td><td>42.9</td><td>32.0</td><td>30.0</td><td>42.0</td><td>10.0</td></tr>
+            <tr><td>VLA-IAP <em>[arXiv'26]</em></td><td>36.0</td><td>40.4</td><td>42.0</td><td><b>41.7</b></td><td>55.0</td><td>12.0</td></tr>
+            <tr class="ours"><td><b>UniMPA</b></td><td>38.0</td><td><b>59.1</b></td><td><b>51.0</b></td><td><b>41.7</b></td><td>52.0</td><td><b>22.0</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Real world -->
+    <div class="tab-panel" id="t-real">
+      <p class="table-note">
+        <strong>GALAXEA R1 Lite</strong> &mdash; 21 tasks across seven suites: UniMPA <b>77.7% TSR / 86.3% CSR</b>
+        vs. 65.3% / 75.6% for $\pi_{0.5}$ and 45.7% / 58.1% for OpenVLA-OFT.
+      </p>
+      <p class="table-note">
+        <strong>AgileX Cobot Magic</strong> &mdash; seven representative tasks, 25 trials each:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th rowspan="2">Method</th>
+              <th colspan="2">Fruit Placement</th><th colspan="2">Microwave</th><th colspan="2">Block Stacking</th>
+              <th colspan="2">Towel Folding</th><th colspan="2">Bimanual Transfer</th>
+              <th colspan="2">Conveyor Interception</th><th colspan="2">Stack Recovery</th><th colspan="2">Average</th>
+            </tr>
+            <tr>
+              <th>TSR</th><th>CSR</th><th>TSR</th><th>CSR</th><th>TSR</th><th>CSR</th><th>TSR</th><th>CSR</th>
+              <th>TSR</th><th>CSR</th><th>TSR</th><th>CSR</th><th>TSR</th><th>CSR</th><th>TSR</th><th>CSR</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>OpenVLA-OFT&dagger;</td>
+              <td>32.0</td><td>50.0</td><td>48.0</td><td>62.7</td><td>40.0</td><td>59.0</td><td>44.0</td><td>58.7</td>
+              <td>36.0</td><td>57.0</td><td>28.0</td><td>44.0</td><td>32.0</td><td>55.2</td><td>37.1</td><td>55.2</td>
+            </tr>
+            <tr>
+              <td>$\pi_{0.5}$&dagger;</td>
+              <td>52.0</td><td>67.0</td><td>72.0</td><td>84.0</td><td>68.0</td><td>78.0</td><td>72.0</td><td>80.0</td>
+              <td>72.0</td><td>81.0</td><td>40.0</td><td>60.0</td><td>60.0</td><td>74.4</td><td>62.3</td><td>74.9</td>
+            </tr>
+            <tr class="ours">
+              <td><b>UniMPA</b></td>
+              <td><b>64.0</b></td><td><b>80.0</b></td><td><b>80.0</b></td><td><b>90.7</b></td><td><b>76.0</b></td><td><b>90.0</b></td>
+              <td><b>76.0</b></td><td><b>88.0</b></td><td><b>80.0</b></td><td><b>86.7</b></td><td><b>76.0</b></td><td><b>85.0</b></td>
+              <td><b>72.0</b></td><td><b>84.8</b></td><td><b>74.9</b></td><td><b>86.4</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">&dagger; denotes our reproduced results. TSR: Task Success Rate. CSR: Cumulative Success Rate.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ANALYSIS ============================ -->
+<section class="section section-alt" id="analysis">
+  <div class="container">
+    <h2 class="section-title">Qualitative Analysis</h2>
+    <div class="figure-duo">
+      <figure class="figure">
+        <img src="static/images/5-vis-temp.png" alt="Temporal memory structure and cross-modal retrieval" loading="lazy">
+        <figcaption>
+          <strong>Temporal memory structure &amp; cross-modal retrieval.</strong> t-SNE of visual and action memory values
+          forms smooth time-ordered trajectories; the temporally aligned pair at zero offset gives the strongest
+          retrieval response.
+        </figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="static/images/5-vis-action.png" alt="Executable action prototypes" loading="lazy">
+        <figcaption>
+          <strong>Executable action prototypes.</strong> A single forward pass already captures direction, stage
+          transition, and gripper-state changes &mdash; a coarse executable manifold that flow refinement then adapts.
+        </figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="static/images/5-vis-visionv2.png" alt="Pixel-level future prediction" loading="lazy">
+        <figcaption>
+          <strong>Pixel-level future prediction.</strong> Current observation, ground-truth future, and the future
+          predicted in a single forward pass.
+        </figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="static/images/5-vis-attention.png" alt="World-transition attention maps" loading="lazy">
+        <figcaption>
+          <strong>World-transition attention.</strong> Attention concentrates on the end-effector, target objects, and
+          contact areas, and evolves coherently with task progression.
+        </figcaption>
+      </figure>
+    </div>
+
+    <h3 class="sub-title">Ablation Takeaways</h3>
+    <div class="finding-grid">
+      <div class="finding">
+        <div class="finding-num">&minus;3.3 / &minus;10.3</div>
+        <p>LIBERO avg. / real-world TSR when using <strong>latent-only</strong> prediction &mdash; persistent and
+          selective streams are complementary.</p>
+      </div>
+      <div class="finding">
+        <div class="finding-num">&minus;4.1 / &minus;13.8</div>
+        <p>Removing <strong>memory entirely</strong>. Future prediction alone does not specify an executable
+          realization.</p>
+      </div>
+      <div class="finding">
+        <div class="finding-num">&minus;2.7 / &minus;9.2</div>
+        <p>Removing <strong>temporal modeling</strong>, which is what keeps retrieval phase-consistent (LIBERO-Long
+          drops 6.0).</p>
+      </div>
+      <div class="finding">
+        <div class="finding-num">&minus;7.3 / &minus;22.9</div>
+        <p>Directly <strong>copying the retrieved action</strong> instead of Prototype-Biased Flow &mdash; history cannot
+          be replayed as-is.</p>
+      </div>
+      <div class="finding">
+        <div class="finding-num">&minus;2.5 / &minus;12.0</div>
+        <p>Replacing <strong>future-oriented memory pretraining</strong> with current-state reconstruction.</p>
+      </div>
+      <div class="finding">
+        <div class="finding-num">&minus;2.6 / &minus;9.8</div>
+        <p><strong>Random triggering</strong> instead of the combined latent + action Trigger Gate.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ BIBTEX ============================ -->
+<section class="section" id="bibtex">
+  <div class="container narrow">
+    <h2 class="section-title">Citation</h2>
+    <div class="code-block">
+      <button class="copy-btn" data-copy="#bib">Copy</button>
+      <pre id="bib">@article{li2026unimpa,
+  title   = {UniMPA: A Unified Memory-Prediction-Action Model via Action-Grounded Transition Modeling},
+  author  = {Li, Wei and Shao, Rui and He, Jie and Zhang, Lingsen and Liu, Ziwei and Nie, Liqiang},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>
+      Harbin Institute of Technology (Shenzhen) &nbsp;&middot;&nbsp; S-Lab, Nanyang Technological University
+    </p>
+    <p class="footer-fine">
+      Website template inspired by academic project pages. Page content derived from the UniMPA manuscript.
+    </p>
+  </div>
+</footer>
+
+<script src="static/js/main.js"></script>
+</body>
+</html>
