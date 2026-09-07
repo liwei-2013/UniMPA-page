@@ -18,7 +18,6 @@ above it showing the exact replacement snippet.
 
 Expected filenames:
 
-- `teaser.mp4` — top-of-page teaser
 - `suite-a-rearrangement.mp4` — semantic rearrangement & sorting
 - `suite-b-articulated.mp4` — articulated & container interaction
 - `suite-c-assembly.mp4` — precision assembly & geometric manipulation

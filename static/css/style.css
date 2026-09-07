@@ -94,9 +94,15 @@ code, pre { font-family: 'JetBrains Mono', ui-monospace, monospace; }
 }
 
 .hero-title {
-  margin: 0 0 26px;
-  font-size: clamp(1.85rem, 4.1vw, 3.05rem);
-  font-weight: 800; line-height: 1.15; letter-spacing: -.028em;
+  margin: 0 auto 26px;
+  max-width: 1100px;
+  font-size: clamp(1.6rem, 3.25vw, 2.45rem);
+  font-weight: 800; line-height: 1.2; letter-spacing: -.028em;
+}
+.hero-title .title-line {
+  display: block;
+  text-wrap: balance;
+  text-align: center;
 }
 .hero-title .accent {
   background: linear-gradient(92deg, var(--accent) 0%, var(--accent-3) 48%, var(--accent-2) 100%);
