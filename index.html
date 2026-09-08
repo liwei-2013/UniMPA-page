@@ -48,12 +48,13 @@
     </h1>
 
     <div class="authors">
-      <a href="#">Wei Li</a><sup>1</sup>,
-      <a href="#">Rui Shao</a><sup>1,&dagger;</sup>,
-      <a href="#">Jie He</a><sup>1</sup>,
-      <a href="#">Lingsen Zhang</a><sup>1</sup>,
-      <a href="#">Ziwei Liu</a><sup>2</sup>,
-      <a href="#">Liqiang Nie</a><sup>1</sup>
+      <!-- wrap a name in <a href="…"> once a homepage link is available -->
+      <span>Wei Li</span><sup>1</sup>,
+      <span>Rui Shao</span><sup>1,&dagger;</sup>,
+      <span>Jie He</span><sup>1</sup>,
+      <span>Lingsen Zhang</span><sup>1</sup>,
+      <span>Ziwei Liu</span><sup>2</sup>,
+      <span>Liqiang Nie</span><sup>1</sup>
     </div>
     <div class="affiliations">
       <span><sup>1</sup>Harbin Institute of Technology (Shenzhen)</span>
@@ -70,10 +71,15 @@
     </p>
 
     <div class="btn-row">
-      <a class="btn btn-primary" href="#" data-todo="arxiv-link">
-        <span class="btn-ico">&#128220;</span> Read Paper
-      </a>
-      <a class="btn" href="#" data-todo="https://github.com/JiuTian-VL/UniMPA">
+      <!--
+        Read Paper: swap the <span> back to an anchor once the arXiv link exists, e.g.
+        <a class="btn btn-primary" href="https://arxiv.org/abs/XXXX.XXXXX"> … </a>
+      -->
+      <span class="btn btn-primary btn-disabled" role="link" aria-disabled="true"
+            title="arXiv link coming soon">
+        <span class="btn-ico">&#128220;</span> Read Paper <span class="btn-soon">Soon</span>
+      </span>
+      <a class="btn" href="https://github.com/JiuTian-VL/UniMPA" target="_blank" rel="noopener">
         <span class="btn-ico">&#60;/&#62;</span> View on GitHub
       </a>
       <a class="btn" href="#realworld">
